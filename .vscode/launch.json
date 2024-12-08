@@ -6,11 +6,7 @@
       "type": "node",
       "request": "launch",
       "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/ts-node",
-      "runtimeArgs": [
-        "--transpile-only",
-        // if you use esm
-        "--esm"
-      ],
+      "runtimeArgs": [],
       "program": "${file}",
       "cwd": "${workspaceRoot}",
       "internalConsoleOptions": "openOnSessionStart",
