@@ -1,12 +1,15 @@
 import json 
+import time
+
+startTime = time.time()
 
 with open('./6.json', 'r') as file:
     INPUTS = json.load(file)
 
-GUARD_UP = "^";
-OBSTACLE = "#";
+GUARD_UP = "^"
+OBSTACLE = "#"
 
-startMap = INPUTS.get("value");
+startMap = INPUTS.get("value")
 
 for row in startMap:
     try:    
@@ -17,7 +20,7 @@ for row in startMap:
     except:
       pass
      
-startVisitedPlaces = set();
+startVisitedPlaces = set()
 
 x= startX
 y= startY
@@ -26,87 +29,88 @@ while True:
   startVisitedPlaces.add((x,y))
   if (dir == "up") : 
     if (y == 0):
-      break;
+      break
     if startMap[y - 1][x] == OBSTACLE:
-      dir = "right";
+      dir = "right"
     else:
-      y -= 1;
+      y -= 1
   elif (dir == "right"):
     if (x == len(startMap[0]) - 1):
-      break;
+      break
     if (startMap[y][x + 1] == OBSTACLE):
-      dir = "down";
+      dir = "down"
     else:
-      x += 1;
+      x += 1
   elif (dir == "down"):
     if (y == len(startMap) - 1):
-      break;
+      break
     if startMap[y + 1][x] == OBSTACLE:
-      dir = "left";
+      dir = "left"
     else:
-      y += 1;
+      y += 1
   elif dir == "left":
     if (x == 0):
-      break;
+      break
     if (startMap[y][x - 1] == OBSTACLE):
-      dir = "up";
+      dir = "up"
     else:
-      x -= 1;
+      x -= 1
 
-print(len(startVisitedPlaces));
+print(len(startVisitedPlaces))
 
 def isLoop(map, x, y, dir):
-  visitedPlaces = set();
+  visitedPlaces = set()
 
   while True:
-    posEntry = (x,y,dir);
+    posEntry = (x,y,dir)
     if (posEntry in visitedPlaces):
-      return True;
-    visitedPlaces.add(posEntry);
+      return True
+    visitedPlaces.add(posEntry)
     if (dir == "up"):
       if (y == 0) :
-        return False;
+        return False
       if (map[y - 1][x] == OBSTACLE):
-        dir = "right";
+        dir = "right"
       else:
-        y -= 1;
+        y -= 1
     elif dir == "right":
-      if (x == map[0].length - 1):
-        return False;
+      if (x == len(map[0]) - 1):
+        return False
       if (map[y][x + 1] == OBSTACLE):
-        dir = "down";
+        dir = "down"
       else:
-        x += 1;
+        x += 1
     elif dir == "down":
-      if (y == map.length - 1):
-        return False;
+      if (y == len(map) - 1):
+        return False
       if (map[y + 1][x] == OBSTACLE):
-        dir = "left";
+        dir = "left"
       else:
-        y += 1;
+        y += 1
     elif dir == "left":
       if (x == 0):
-        return False;
+        return False
       if (map[y][x - 1] == OBSTACLE):
-        dir = "up";
+        dir = "up"
       else:
-        x -= 1;
+        x -= 1
 
-print(isLoop(startMap, startX, startY, startDir))
-# const startMapString = JSON.stringify(startMap);
-# let count = 0;
-# for (const pos of visited) {
-#   const obstX = parseInt(pos.split(",")[0]);
-#   const obstY = parseInt(pos.split(",")[1]);
-#   if (obstX == startX && obstY == startY) {
-#     continue;
-#   }
-#   const map = JSON.parse(startMapString);
-#   map[obstY] =
-#     map[obstY].substring(0, obstX) + "#" + map[obstY].substring(obstX + 1);
-#   if (isLoop(map, startX, startY, startDir)) {
-#     count++;
-#   }
-# }
+count = 0
+for pos in startVisitedPlaces:
+  obstX = pos[0]
+  obstY = pos[1]
+  if (obstX == startX and obstY == startY):
+    continue
+  originalRow = startMap[obstY]
+  startMap[obstY] =  startMap[obstY][0: obstX] + "#" + startMap[obstY][obstX + 1:]
 
-# console.log(count);
+  if(len(originalRow) != len(startMap[obstY])):
+    print(originalRow)
+    print(startMap[obstY])
+    print("pop")
+  if (isLoop(startMap, startX, startY, startDir)):
+    count+=1
+  startMap[obstY] = originalRow
+
+print(count)
+print("%s seconds" % (time.time() - startTime))

@@ -1,3 +1,4 @@
+const startTime = performance.now();
 import INPUTS from "./6.json";
 import { visited } from "./6a";
 
@@ -107,3 +108,4 @@ for (const pos of visited) {
 }
 
 console.log(count);
+console.log(`${(performance.now() - startTime) / 1000} seconds`);
