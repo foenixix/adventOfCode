@@ -22,6 +22,9 @@ function accumulateInfo(accumulator: PlotInfo, value: PlotInfo) {
 }
 
 function getPlotInfo(x: number, y: number): PlotInfo {
+  if (visited[y][x]) {
+    throw new Error("Illegal state, getting info twice");
+  }
   visited[y][x] = true;
   const value = plots[y][x];
   const result: PlotInfo = {
@@ -117,17 +120,21 @@ plots.forEach((row, y) => {
     const leftPerimeters = countVerticalPerimeters(info.leftPerimeters);
     const perimeters =
       topPerimeters + rightPerimeters + bottomPerimeters + leftPerimeters;
-    // console.log(
-    //   row[x],
-    //   info.surface,
-    //   perimeters,
-    //   topPerimeters,
-    //   rightPerimeters,
-    //   bottomPerimeters,
-    //   leftPerimeters,
-    // );
+    console.log(
+      row[x],
+      info.surface,
+      perimeters,
+      topPerimeters,
+      rightPerimeters,
+      bottomPerimeters,
+      leftPerimeters,
+    );
     result += perimeters * info.surface;
   }
 });
 
+const index = visited.findIndex((row) => row.findIndex((elem) => !elem) >= 0);
+if (index >= 0) {
+  console.log("error");
+}
 console.log(result);
