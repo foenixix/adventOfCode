@@ -1,8 +1,8 @@
 import INPUTS from "./16.json";
 
-const map = INPUTS.test.map;
+const map = INPUTS.value.map;
 
-type Direction = "right" | "up" | "left" | "down";
+export type Direction = "right" | "up" | "left" | "down";
 
 let start: [number, number] = [0, 0];
 let end: [number, number] = [0, 0];
@@ -19,11 +19,11 @@ map.forEach((row, y) => {
   }
 });
 
-function toVisit(x: number, y: number, dir: Direction) {
+export function toVisit(x: number, y: number, dir: Direction) {
   return x + "," + y + "," + dir;
 }
 
-function turnLeft(dir: Direction): Direction {
+export function turnLeft(dir: Direction): Direction {
   if (dir === "left") {
     return "down";
   } else if (dir === "down") {
@@ -125,5 +125,7 @@ function visit(x: number, y: number, dir: Direction, score: number) {
   }
 }
 
-console.log(JSON.stringify(visitToScore, null, 2));
+export const startPos = start;
+export const endPos = end;
+export const weights = visitToScore;
 console.log(lowestScore);

@@ -1,109 +1,82 @@
-import INPUTS from "./16.json";
+import {
+  weights as visitToScore,
+  startPos as start,
+  endPos as end,
+  toVisit,
+  Direction,
+  turnLeft,
+} from "./16a";
 
-const { map, weights: visitToScore } = INPUTS.test;
-
-type Direction = "right" | "up" | "left" | "down";
-
-let start: [number, number] = [0, 0];
-let end: [number, number] = [0, 0];
-
-map.forEach((row, y) => {
-  const startIndex = row.indexOf("S");
-  if (startIndex >= 0) {
-    start = [startIndex, y];
-  }
-
-  const endIndex = row.indexOf("E");
-  if (endIndex >= 0) {
-    end = [endIndex, y];
-  }
-});
-
-const score = visitToScore[toVisit()];
-let shortestPath: string[] = [];
-const visited = new Set<string>();
-let currentScore = 0;
-
-function toVisit(x: number, y: number, dir: Direction) {
-  return x + "," + y + "," + dir;
-}
-
-function toPos(x: number, y: number) {
-  return x + "," + y;
-}
-
-function turnLeft(dir: Direction): Direction {
+function prevPos(x: number, y: number, dir: Direction): [number, number] {
   if (dir === "left") {
-    return "down";
-  } else if (dir === "down") {
-    return "right";
-  } else if (dir === "right") {
-    return "up";
-  } else if (dir === "up") {
-    return "left";
-  } else {
-    throw new Error("Illegal state: bad dir parsing");
-  }
-}
-
-function nextPos(x: number, y: number, dir: Direction): [number, number] {
-  if (dir === "left") {
-    return [x - 1, y];
-  } else if (dir === "down") {
-    return [x, y + 1];
-  } else if (dir === "right") {
     return [x + 1, y];
-  } else if (dir === "up") {
+  } else if (dir === "down") {
     return [x, y - 1];
+  } else if (dir === "right") {
+    return [x - 1, y];
+  } else if (dir === "up") {
+    return [x, y + 1];
   } else {
     throw new Error("Illegal state: bad dir parsing");
   }
 }
 
-function canVisit(x: number, y: number) {
-  return !visited.has(toPos(x, y)) && map[y][x] !== "#";
-}
+const visited = new Set<string>();
 
-function visit(x: number, y: number, dir: Direction, path: string[]) {
-  const pos = toPos(x, y);
+function visitBack(x: number, y: number, dir: Direction, score: number) {
+  const pos = toVisit(x, y, dir);
   visited.add(pos);
-  const nextPath = [...path, pos];
 
-  if (x === end[0] && y === end[1]) {
-    if (currentScore < lowestScore) {
-      lowestScore = currentScore;
-      shortestPath = nextPath;
-    }
+  if (x === start[0] && y === start[1]) {
     return;
   }
-  const [straightX, straightY] = nextPos(x, y, dir);
-  if (canVisit(straightX, straightY)) {
-    currentScore++;
-    visit(straightX, straightY, dir, nextPath);
-    visited.delete(toPos(straightX, straightY));
-    currentScore--;
+  const [straightX, straightY] = prevPos(x, y, dir);
+  const straightScore = visitToScore[toVisit(straightX, straightY, dir)];
+  if (straightScore === score - 1) {
+    visitBack(straightX, straightY, dir, score - 1);
   }
 
   const left = turnLeft(dir);
-  const [leftX, leftY] = nextPos(x, y, left);
-  if (canVisit(leftX, leftY)) {
-    currentScore += 1001;
-    visit(leftX, leftY, left, nextPath);
-    visited.delete(toPos(leftX, leftY));
-    currentScore -= 1001;
+  const leftScore = visitToScore[toVisit(x, y, left)];
+  if (leftScore === score - 1000) {
+    visitBack(x, y, left, score - 1000);
   }
 
   const right = turnLeft(turnLeft(left));
-  const [rightX, rightY] = nextPos(x, y, right);
-  if (canVisit(rightX, rightY)) {
-    currentScore += 1001;
-    visit(rightX, rightY, right, nextPath);
-    visited.delete(toPos(rightX, rightY));
-    currentScore -= 1001;
+  const rightScore = visitToScore[toVisit(x, y, right)];
+  if (rightScore === score - 1000) {
+    visitBack(x, y, right, score - 1000);
   }
 }
 
-visit(start[0], start[1], "right", []);
+const upScore = visitToScore[toVisit(end[0], end[1], "up")];
+const rightScore = visitToScore[toVisit(end[0], end[1], "right")];
+const downScore = visitToScore[toVisit(end[0], end[1], "down")];
+const leftScore = visitToScore[toVisit(end[0], end[1], "left")];
+const score = Math.min(
+  upScore ?? Number.MAX_SAFE_INTEGER,
+  rightScore ?? Number.MAX_SAFE_INTEGER,
+  downScore ?? Number.MAX_SAFE_INTEGER,
+  leftScore ?? Number.MAX_SAFE_INTEGER,
+);
 
-console.log(lowestScore);
-console.log(shortestPath);
+if (upScore === score) {
+  visitBack(end[0], end[1], "up", score);
+}
+if (rightScore === score) {
+  visitBack(end[0], end[1], "right", score);
+}
+if (downScore === score) {
+  visitBack(end[0], end[1], "down", score);
+}
+if (leftScore === score) {
+  visitBack(end[0], end[1], "left", score);
+}
+
+const visitedPositions = new Set<string>();
+visited.forEach((visit) => {
+  const index = visit.lastIndexOf(",");
+  visitedPositions.add(visit.substring(0, index));
+});
+
+console.log(visitedPositions.size);
