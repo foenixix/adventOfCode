@@ -71,7 +71,7 @@ function countVerticalPerimeters(perimeters: [number, number][]): number {
     const columnPerimetersHeights = perimeters
       .filter((perimeter) => x === perimeter[0])
       .map((perimeter) => perimeter[1])
-      .sort();
+      .sort((a, b) => a - b);
     if (columnPerimetersHeights.length > 0) {
       result++;
       for (let i = 0; i < columnPerimetersHeights.length - 1; i++) {
@@ -92,7 +92,7 @@ function countHorizontalPerimeters(perimeters: [number, number][]): number {
     const rowPerimetersDepth = perimeters
       .filter((perimeter) => y === perimeter[1])
       .map((perimeter) => perimeter[0])
-      .sort();
+      .sort((a, b) => a - b);
     if (rowPerimetersDepth.length > 0) {
       result++;
       for (let i = 0; i < rowPerimetersDepth.length - 1; i++) {
