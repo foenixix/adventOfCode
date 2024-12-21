@@ -1,6 +1,6 @@
 import INPUTS from "./18.json";
 
-const { size, obstacles, length } = INPUTS.test;
+const { size, obstacles, length } = INPUTS.value;
 
 const obstacleSet = new Set<string>();
 const visitedSet = new Set<string>();
@@ -19,20 +19,28 @@ let nextPositions = new Set<string>();
 
 function step(): boolean {
   for (const [x, y] of currentPositions) {
-    if (x === length - 1 && y === length - 1) {
+    if (x === size - 1 && y === size - 1) {
       return true;
     }
     visitedSet.add(toPos(x, y));
 
     const nextCandidates = [
-      [x - 1, y + 1],
-      [x - 1, y - 1],
-      [x + 1, y + 1],
-      [x + 1, y - 1],
+      [x, y + 1],
+      [x, y - 1],
+      [x + 1, y],
+      [x - 1, y],
     ];
     for (const candidate of nextCandidates) {
+      if (
+        candidate[0] < 0 ||
+        candidate[1] < 0 ||
+        candidate[0] >= size ||
+        candidate[1] >= size
+      ) {
+        continue;
+      }
       const pos = toPos(candidate[0], candidate[1]);
-      if (!visitedSet.has(pos)) {
+      if (!visitedSet.has(pos) && !obstacleSet.has(pos)) {
         nextPositions.add(pos);
       }
     }
