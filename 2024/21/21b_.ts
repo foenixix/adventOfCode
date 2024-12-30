@@ -5,7 +5,8 @@ import {
   getShortestSubDirRoute,
 } from "./util";
 
-const codes = INPUTS.value;
+const codes = INPUTS.manualtest;
+const ROBOTS = 3;
 
 const cheatMap: Record<string, number> = {};
 
@@ -57,7 +58,7 @@ for (const code of codes) {
     const subDirRoutes = moveSet.split("A").slice(0, -1);
     let cost = 0;
     for (const route of subDirRoutes) {
-      cost += subDirRouteCost(route, 25);
+      cost += subDirRouteCost(route, ROBOTS);
     }
     if (cost < minCost) {
       minCost = cost;

@@ -6,14 +6,24 @@ import {
 } from "./util";
 
 const codes = INPUTS.value;
+const ROBOTS = 3;
 
-type Pos = [number, number];
-function toPos(x: number, y: number) {
-  return x + "," + y;
+// const cheatMap: Record<string, number> = {};
+
+function subDirRouteCost(route: string, steps: number): number {
+  if (steps === 0) {
+    return route.length + 1;
+  }
+  const subRoute = getShortestSubDirRoute(route);
+  const subDirRoutes = subRoute.split("A").slice(0, -1);
+  let result = 0;
+  for (const subDirRoute of subDirRoutes) {
+    result += subDirRouteCost(subDirRoute, steps - 1);
+  }
+  return result;
 }
 
 let result = 0;
-// for (const code of [codes[0]]) {
 for (const code of codes) {
   let numericMoves = [""];
   let currentChar: string = "A";
@@ -29,64 +39,28 @@ for (const code of codes) {
     currentChar = char;
   }
 
-  let goalMoves = numericMoves;
-  // let goalMoves = [">^>A", ">>^A"];
-
-  // console.log("score", score(goalMoves[0]), score(goalMoves[1]));
-  let minScore = score(goalMoves[0]);
-  for (const moveSet of goalMoves) {
+  let minScore = score(numericMoves[0]);
+  for (const moveSet of numericMoves) {
     const newScore = score(moveSet);
     if (newScore < minScore) {
       minScore = newScore;
     }
   }
-  goalMoves = goalMoves.filter((moveset) => score(moveset) === minScore);
+  numericMoves = numericMoves.filter((moveset) => score(moveset) === minScore);
 
-  //here we only have dir subroutes anymore
-  for (let i = 0; i < 8; i++) {
-    let shortestDirMoves: string[] = [];
-    for (const moveSet of goalMoves) {
-      let dirMove = "";
-      const subDirRoutes = moveSet.slice(0, -1).split("A");
-      for (const subDirRoute of subDirRoutes) {
-        dirMove += getShortestSubDirRoute(subDirRoute);
-      }
-      if (
-        shortestDirMoves.length === 0 ||
-        shortestDirMoves[0].length > dirMove.length
-      ) {
-        if (
-          shortestDirMoves.length > 0 &&
-          shortestDirMoves[0].length > dirMove.length
-        ) {
-          throw new Error("Illegal state: sorting didn't work");
-        }
-        shortestDirMoves = [dirMove];
-      } else if (shortestDirMoves[0].length === dirMove.length) {
-        shortestDirMoves.push(dirMove);
-      }
+  let minCost = Number.MAX_SAFE_INTEGER;
+  for (const moveSet of numericMoves) {
+    const subDirRoutes = moveSet.split("A").slice(0, -1);
+    let cost = 0;
+    for (const route of subDirRoutes) {
+      cost += subDirRouteCost(route, ROBOTS);
     }
-    goalMoves = shortestDirMoves;
-    console.log("goals", goalMoves);
-    console.log("before", i, goalMoves.length);
-    let minScore = score(goalMoves[0]);
-    for (const moveSet of goalMoves) {
-      const newScore = score(moveSet);
-      if (newScore < minScore) {
-        minScore = newScore;
-      }
+    if (cost < minCost) {
+      minCost = cost;
     }
-    goalMoves = goalMoves.filter((moveset) => score(moveset) === minScore);
-    console.log("after", i, goalMoves.length);
   }
 
-  result += parseInt(code.slice(0, -1)) * goalMoves[0].length;
-  console.log(
-    "new: ",
-    code,
-    numericMoves.length,
-    goalMoves[0].length,
-    goalMoves[0],
-  );
+  result += parseInt(code.slice(0, -1)) * minCost;
+  console.log(code, numericMoves.length, minCost);
 }
 console.log(result);

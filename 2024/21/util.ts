@@ -1,6 +1,3 @@
-import { dir } from "console";
-import exp from "constants";
-
 type Pos = [number, number];
 function toPos(x: number, y: number) {
   return x + "," + y;
@@ -8,13 +5,10 @@ function toPos(x: number, y: number) {
 
 const numericMap = ["789", "456", "123", "#0A"];
 const numericGoals = new Map<string, Pos>();
-const numericObstacles = new Set<string>();
 numericMap.forEach((row, y) => {
   for (let x = 0; x < row.length; x++) {
     const char = row[x];
-    if (char === "#") {
-      numericObstacles.add(toPos(x, y));
-    } else {
+    if (char !== "#") {
       numericGoals.set(char, [x, y]);
     }
   }
@@ -22,13 +16,10 @@ numericMap.forEach((row, y) => {
 
 const dirMap = ["#^A", "<v>"];
 const dirGoals = new Map<string, Pos>();
-const dirObstacles = new Set<string>();
 dirMap.forEach((row, y) => {
   for (let x = 0; x < row.length; x++) {
     const char = row[x];
-    if (char === "#") {
-      dirObstacles.add(toPos(x, y));
-    } else {
+    if (char !== "#") {
       dirGoals.set(char, [x, y]);
     }
   }
@@ -69,7 +60,6 @@ function step(
   return fullRoutes;
 }
 
-//TODO: precompute all fastest routes, should not be that hard
 function findFastestRoutes(
   map: string[],
   x: number,
@@ -121,7 +111,7 @@ const shortestDirRoutes: Record<string, string[]> = {};
 for (const start of dirGoals) {
   for (const end of dirGoals) {
     const shortestRoutes = findFastestRoutes(
-      numericMap,
+      dirMap,
       start[1][0],
       start[1][1],
       end[1],
@@ -139,7 +129,7 @@ const subDirRoutes = [
   ...Object.values(shortestDirRoutes).flat(),
   ...Object.values(shortestNumericRoutes).flat(),
 ];
-console.log(subDirRoutes);
+// console.log(subDirRoutes);
 for (const subDirRoute of subDirRoutes) {
   let moves = [""];
   let currentChar = "A";
@@ -161,7 +151,7 @@ for (const subDirRoute of subDirRoutes) {
     (moveset) => score(moveset) === minScore,
   )!;
 }
-console.log(JSON.stringify(shortestSubDirRoutes, null, 2));
+// console.log(JSON.stringify(shortestSubDirRoutes, null, 2));
 
 export function getShortestNumericRoutes(from: string, to: string): string[] {
   const result = shortestNumericRoutes[from + "," + to];
