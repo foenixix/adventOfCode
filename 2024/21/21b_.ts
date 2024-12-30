@@ -5,8 +5,8 @@ import {
   getShortestSubDirRoute,
 } from "./util";
 
-const codes = INPUTS.manualtest;
-const ROBOTS = 3;
+const codes = INPUTS.value;
+const ROBOTS = 25;
 
 const cheatMap: Record<string, number> = {};
 
@@ -18,14 +18,20 @@ function subDirRouteCost(route: string, steps: number): number {
   if (cheatCost !== undefined) {
     return cheatCost;
   }
-  const subRoute = getShortestSubDirRoute(route);
-  const subDirRoutes = subRoute.split("A").slice(0, -1);
-  let result = 0;
-  for (const subDirRoute of subDirRoutes) {
-    result += subDirRouteCost(subDirRoute, steps - 1);
+  const subRoutes = getShortestSubDirRoute(route);
+  let lowestScore = Number.MAX_SAFE_INTEGER;
+  for (const subRoute of subRoutes) {
+    const subDirRoutes = subRoute.split("A").slice(0, -1);
+    let result = 0;
+    for (const subDirRoute of subDirRoutes) {
+      result += subDirRouteCost(subDirRoute, steps - 1);
+    }
+    if (result < lowestScore) {
+      lowestScore = result;
+    }
   }
-  cheatMap[route + "," + steps] = result;
-  return result;
+  cheatMap[route + "," + steps] = lowestScore;
+  return lowestScore;
 }
 
 let result = 0;
@@ -66,6 +72,6 @@ for (const code of codes) {
   }
 
   result += parseInt(code.slice(0, -1)) * minCost;
-  console.log("new: ", code, numericMoves.length, minCost);
+  console.log(code, numericMoves.length, minCost);
 }
 console.log(result);

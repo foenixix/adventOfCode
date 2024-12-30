@@ -124,7 +124,7 @@ for (const start of dirGoals) {
   }
 }
 
-const shortestSubDirRoutes: Record<string, string> = {};
+const shortestSubDirRoutes: Record<string, string[]> = {};
 const subDirRoutes = [
   ...Object.values(shortestDirRoutes).flat(),
   ...Object.values(shortestNumericRoutes).flat(),
@@ -147,7 +147,7 @@ for (const subDirRoute of subDirRoutes) {
   }
 
   const minScore = Math.min(...moves.map(score));
-  shortestSubDirRoutes[subDirRoute] = moves.find(
+  shortestSubDirRoutes[subDirRoute] = moves.filter(
     (moveset) => score(moveset) === minScore,
   )!;
 }
@@ -173,7 +173,7 @@ export function getShortestDirRoutes(from: string, to: string): string[] {
   return result;
 }
 
-export function getShortestSubDirRoute(route: string): string {
+export function getShortestSubDirRoute(route: string): string[] {
   const result = shortestSubDirRoutes[route];
   if (result === undefined) {
     throw new Error(`Illegal argument, couldnt find subdir route for ${route}`);
