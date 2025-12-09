@@ -4,14 +4,7 @@ const start = performance.now();
 const corners = INPUTS.data.map((coords) =>
   coords.split(",").map((a) => parseInt(a)),
 );
-const outsideCorners: [number, number][] = [];
-
-//This only works for my solution
-for(let i=1673; i<94601; i++){
-  outsideCorners.push([i, 50002])
-  outsideCorners.push([i, 48786])
-}
-
+let outsideCorners: [number, number][] = [];
 
 let highestArea = 0;
 
@@ -21,78 +14,50 @@ for (let i = 0; i < corners.length; i++) {
   const currentCorner = corners[i];
   const nextCorner = i + 1 === corners.length ? corners[0] : corners[i + 1];
 
+  const prevDown = prevCorner[1] < currentCorner[1];
+  const prevRight = currentCorner[0] > prevCorner[0];
   if (nextCorner[0] > currentCorner[0]) {
     //going right
-    if (currentCorner[1] > prevCorner[1]) {
-      //prev went down
-      outsideCorners.push([currentCorner[0] + 1, currentCorner[1] - 1]);
-    } else if (currentCorner[1] < prevCorner[1]) {
-      //prev went up
-      outsideCorners.push(
-        [currentCorner[0] - 1, currentCorner[1]],
-        [currentCorner[0] - 1, currentCorner[1] - 1],
-        [currentCorner[0], currentCorner[1] - 1],
-      );
-    } else {
-      throw new Error(
-        "now going horizontal but previous didn't go vertical, I made a wrong assumption",
-      );
+    for (
+      let i = currentCorner[0] + (prevDown ? 1 : 0);
+      i < nextCorner[0];
+      i++
+    ) {
+      outsideCorners.push([i, currentCorner[1] - 1]);
     }
   } else if (nextCorner[0] < currentCorner[0]) {
     //going left
-    if (currentCorner[1] > prevCorner[1]) {
-      //prev went down
-      outsideCorners.push(
-        [currentCorner[0] + 1, currentCorner[1]],
-        [currentCorner[0] + 1, currentCorner[1] + 1],
-        [currentCorner[0], currentCorner[1] + 1],
-      );
-    } else if (currentCorner[1] < prevCorner[1]) {
-      //prev went up
-      outsideCorners.push([currentCorner[0] - 1, currentCorner[1] + 1]);
-    } else {
-      throw new Error(
-        "now going horizontal but previous didn't go vertical, I made a wrong assumption",
-      );
+    for (
+      let i = nextCorner[0] + (prevDown ? 0 : 1);
+      i < currentCorner[0];
+      i++
+    ) {
+      outsideCorners.push([i, currentCorner[1] + 1]);
     }
   } else if (nextCorner[1] > currentCorner[1]) {
     //going down
-    if (currentCorner[0] > prevCorner[0]) {
-      //prev went right
-      outsideCorners.push(
-        [currentCorner[0], currentCorner[1] - 1],
-        [currentCorner[0] + 1, currentCorner[1] - 1],
-        [currentCorner[0] + 1, currentCorner[1]],
-      );
-    } else if (currentCorner[0] < prevCorner[0]) {
-      //prev went left
-      outsideCorners.push([currentCorner[0] + 1, currentCorner[1] + 1]);
-    } else {
-      throw new Error(
-        "now going vertical but previous didn't go horizontal, I made a wrong assumption",
-      );
+    for (
+      let i = currentCorner[1] + (prevRight ? 1 : 0);
+      i < nextCorner[1];
+      i++
+    ) {
+      outsideCorners.push([currentCorner[0] + 1, i]);
     }
   } else if (nextCorner[1] < currentCorner[1]) {
     //going up
-    if (currentCorner[0] > prevCorner[0]) {
-      //prev went right
-      outsideCorners.push([currentCorner[0] - 1, currentCorner[1] - 1]);
-    } else if (currentCorner[0] < prevCorner[0]) {
-      //prev went left
-      outsideCorners.push(
-        [currentCorner[0] - 1, currentCorner[1]],
-        [currentCorner[0] - 1, currentCorner[1] + 1],
-        [currentCorner[0], currentCorner[1] + 1],
-      );
-    } else {
-      throw new Error(
-        "now going vertical but previous didn't go horizontal, I made a wrong assumption",
-      );
+    for (
+      let i = nextCorner[1] + (prevRight ? 0 : 1);
+      i < currentCorner[1];
+      i++
+    ) {
+      outsideCorners.push([currentCorner[0] - 1, i]);
     }
   } else {
     throw new Error("going nowhere");
   }
 }
+
+outsideCorners = [...new Set(outsideCorners)];
 
 for (let i = 0; i < corners.length; i++) {
   for (let j = i + 1; j < corners.length; j++) {
@@ -120,9 +85,6 @@ function hasOutsideInside([x1, y1]: number[], [x2, y2]: number[]) {
       outside[1] >= minY &&
       outside[1] <= maxY
     ) {
-      // console.log(
-      //   `(${x1}, ${y1})-(${x2},${y2}) has (${outside[0]}, ${outside[1]}) inside`,
-      // );
       return true;
     }
   }
@@ -131,5 +93,3 @@ function hasOutsideInside([x1, y1]: number[], [x2, y2]: number[]) {
 
 console.log(`full end at ${((performance.now() - start) / 1000).toFixed(3)}`);
 console.log("result", highestArea);
-
-
